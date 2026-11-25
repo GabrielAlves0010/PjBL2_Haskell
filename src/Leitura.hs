@@ -30,7 +30,7 @@ module Leitura
   ) where
 
 import Classificacao (aproveitamento, pontosLinha, saldo)
-import Data.Char (isSpace)
+import Data.Char (isDigit, isSpace)
 import Data.Either (lefts, rights)
 import Data.List (dropWhileEnd, group, intercalate, sort)
 import Data.Maybe (listToMaybe)
@@ -92,9 +92,29 @@ separar sep = foldr passo [""]
 aparar :: String -> String
 aparar = dropWhileEnd isSpace . dropWhile isSpace
 
--- | Lê um número inteiro, informando a linha e o texto no erro.
+-- | O texto tem o formato de um inteiro decimal: sinal '-' opcional seguido
+-- de um ou mais dígitos? Recusa, por exemplo, "0x10", "(3)" e "+2".
+formatoDeInteiro :: String -> Bool
+formatoDeInteiro texto = not (null digitos) && all isDigit digitos
+  where
+    digitos = if take 1 texto == "-" then drop 1 texto else texto
+
+-- | Converte para 'Int' apenas se o valor couber nele, sem estouro.
+caberEmInt :: Integer -> Maybe Int
+caberEmInt valor =
+  if valor >= toInteger (minBound :: Int) && valor <= toInteger (maxBound :: Int)
+    then Just (fromInteger valor)
+    else Nothing
+
+-- | Lê um número inteiro, informando a linha e o texto no erro. Só aceita
+-- sinal '-' opcional e dígitos decimais; lê como 'Integer' e recusa o que não
+-- cabe em 'Int', para não haver estouro silencioso.
 lerNumero :: Int -> String -> Either Erro Int
-lerNumero n texto = maybe (Left (NumeroInvalido n texto)) Right (readMaybe texto)
+lerNumero n texto =
+  maybe (Left (NumeroInvalido n texto)) Right
+    (validar texto >>= readMaybe >>= caberEmInt)
+  where
+    validar t = if formatoDeInteiro t then Just t else Nothing
 
 -- | Devolve @Right ()@ se a condição vale e @Left erro@ caso contrário.
 exigir :: Bool -> Erro -> Either Erro ()

@@ -77,7 +77,7 @@ O campeonato de teste fica no módulo `Dados` como texto (`unlines [...]`) em ve
 
 `lerPartida` devolve `Either Erro Partida` e usa a notação `do` na mônada `Either`: ao primeiro `Left`, o restante é abandonado. `lerCampeonato` aplica `traverse (uncurry lerPartida)` sobre as linhas relevantes, o que também para no primeiro erro e devolve `Left` com ele. Esse é o comportamento ideal quando basta saber se o texto é utilizável e qual é o primeiro problema.
 
-`lerNumero` usa `readMaybe` (que devolve `Maybe`) e `maybe (Left ...) Right` para converter a falha em um erro descritivo. `readMaybe` foi escolhida no lugar de `read` porque `read` é parcial: aborta o programa com uma exceção em entrada inválida.
+`lerNumero` usa `readMaybe` (que devolve `Maybe`) e `maybe (Left ...) Right` para converter a falha em um erro descritivo. `readMaybe` foi escolhida no lugar de `read` porque `read` é parcial: aborta o programa com uma exceção em entrada inválida. Antes de ler, o formato é validado (sinal `-` opcional e só dígitos decimais, via `isDigit`), o que recusa `0x10`, `(3)` e `+2`; o texto é lido como `Integer` e só é aceito se couber em `Int` (entre `minBound` e `maxBound`), evitando o estouro silencioso de valores como `99999999999999999999`.
 
 ### `todosOsErros`: acumular todos
 
@@ -114,7 +114,6 @@ O aproveitamento é mostrado com casas decimais fixas sem `Text.Printf`: o núme
 - **O campeonato não precisa ser completo.** Não se valida que todos os times se enfrentam, nem que todas as rodadas têm o mesmo número de jogos.
 - **Confronto direto não é critério de desempate.** O regulamento do Campeonato Brasileiro usa o confronto direto em alguns casos; aqui, o desempate vai direto de gols pró para o nome do time.
 - **O caractere `;` não pode aparecer em nome de time.** `separar` não trata aspas nem escape.
-- **`readMaybe` aceita mais formatos do que o esperado.** Por exemplo, `0x10` é lido como 16 e `(3)` como 3. Entradas assim são aceitas como números.
 - **Nomes de times muito longos.** A largura da coluna do time é calculada pelo maior nome, mas a tabela não é cortada se a linha ficar maior que o terminal.
 - **Partidas sem data nem ordem interna.** Dentro de uma rodada, a ordem das partidas no texto não tem significado.
 - **Acentos no console do Windows.** Se o terminal não usar UTF-8, os acentos podem aparecer errados mesmo com `hSetEncoding`; nesse caso, execute `chcp 65001` antes do programa.

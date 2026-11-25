@@ -236,6 +236,25 @@ testesCamada3 =
       (lerPartida 7 "1;Coritiba;dois;0;Paraná") (Left (NumeroInvalido 7 "dois"))
   , testar "C3 NumeroInvalido: rodada vazia"
       (lerPartida 2 ";Coritiba;1;0;Paraná") (Left (NumeroInvalido 2 ""))
+  , testar "C3 NumeroInvalido: estouro de Int (99999999999999999999)"
+      (lerNumero 9 "99999999999999999999")
+      (Left (NumeroInvalido 9 "99999999999999999999"))
+  , testar "C3 NumeroInvalido: hexadecimal \"0x10\""
+      (lerNumero 9 "0x10") (Left (NumeroInvalido 9 "0x10"))
+  , testar "C3 NumeroInvalido: parênteses \"(3)\""
+      (lerNumero 9 "(3)") (Left (NumeroInvalido 9 "(3)"))
+  , testar "C3 NumeroInvalido: sinal positivo \"+2\""
+      (lerNumero 9 "+2") (Left (NumeroInvalido 9 "+2"))
+  , testar "C3 NumeroInvalido: só o sinal \"-\""
+      (lerNumero 9 "-") (Left (NumeroInvalido 9 "-"))
+  , testar "C3 lerNumero aceita negativo e zeros à esquerda"
+      (map (lerNumero 1) ["-1", "007"]) [Right (-1), Right 7]
+  , testar "C3 lerNumero aceita os limites de Int"
+      (map (lerNumero 1) [show (maxBound :: Int), show (minBound :: Int)])
+      [Right maxBound, Right minBound]
+  , testar "C3 NumeroInvalido: um acima do máximo de Int"
+      (lerNumero 1 "9223372036854775808")
+      (Left (NumeroInvalido 1 "9223372036854775808"))
   , testar "C3 CamposInvalidos: só 4 campos"
       (lerPartida 3 "1;A;2;1") (Left (CamposInvalidos 3))
   , testar "C3 CamposInvalidos: 6 campos"
