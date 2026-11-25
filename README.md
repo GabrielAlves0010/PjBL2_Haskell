@@ -1,5 +1,12 @@
 # Tabela de classificação de campeonato em Haskell
 
+## Integrantes
+
+- Gabriel Colasso Agnoletto
+- Gabriel Henrique Alves de Oliveira
+- Isabella Schwab
+- Rafael Engel Schlenker Camargo
+
 Trabalho em três camadas, escrito em Haskell puro (somente a biblioteca `base`):
 
 | Camada | Arquivo | Responsabilidade |
